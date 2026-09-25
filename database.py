@@ -1,191 +1,395 @@
-import chromadb
+"""
+database.py — PS-06 migration
 
-client = chromadb.Client()
-collection = client.create_collection("landmarks")
+This module queries PS-06.db instead of the old ChromaDB setup.
 
-landmarks = [
-    {
-        "id": "gateway_of_india",
-        "text": "Gateway of India built in 1924 Mumbai Maharashtra India overlooks Arabian Sea.",
-        "name": "Gateway of India",
-        "location": "Mumbai, India",
-        "timings": "Open 24 hours",
-        "entry_fee": "Free",
-        "best_time": "Early morning or sunset",
-        "fun_fact": "The last British troops left India through this gateway in 1948",
-        "latitude": "18.9220",
-        "longitude": "72.8347"
-    },
-    {
-        "id": "taj_mahal",
-        "text": "Taj Mahal white marble mausoleum built 1632 Emperor Shah Jahan Agra Uttar Pradesh India UNESCO World Heritage Site.",
-        "name": "Taj Mahal",
-        "location": "Agra, India",
-        "timings": "6:00 AM - 7:00 PM (Closed Friday)",
-        "entry_fee": "₹50 Indians / ₹1100 Foreigners",
-        "best_time": "Sunrise",
-        "fun_fact": "It took 22 years and 20,000 workers to build",
-        "latitude": "27.1751",
-        "longitude": "78.0421"
-    },
-    {
-        "id": "india_gate",
-        "text": "India Gate war memorial New Delhi India built 1931 commemorates soldiers World War I.",
-        "name": "India Gate",
-        "location": "New Delhi, India",
-        "timings": "Open 24 hours",
-        "entry_fee": "Free",
-        "best_time": "Evening when illuminated",
-        "fun_fact": "It is 42 metres tall and made of red Bharatpur stone",
-        "latitude": "28.6129",
-        "longitude": "77.2295"
-    },
-    {
-        "id": "qutub_minar",
-        "text": "Qutub Minar minaret built 1193 Qutb ud-Din Aibak Delhi India tallest minaret India 72.5 metres.",
-        "name": "Qutub Minar",
-        "location": "New Delhi, India",
-        "timings": "7:00 AM - 5:00 PM",
-        "entry_fee": "₹30 Indians / ₹500 Foreigners",
-        "best_time": "Morning",
-        "fun_fact": "It is a UNESCO World Heritage Site built over 200 years",
-        "latitude": "28.5244",
-        "longitude": "77.1855"
-    },
-    {
-        "id": "hawa_mahal",
-        "text": "Hawa Mahal Palace of Winds built 1799 Maharaja Sawai Pratap Singh Jaipur Rajasthan India.",
-        "name": "Hawa Mahal",
-        "location": "Jaipur, India",
-        "timings": "9:00 AM - 4:30 PM",
-        "entry_fee": "₹50 Indians / ₹200 Foreigners",
-        "best_time": "Morning when sunlight hits the facade",
-        "fun_fact": "It has 953 windows designed so royal ladies could watch street life without being seen",
-        "latitude": "26.9239",
-        "longitude": "75.8267"
-    },
-    {
-        "id": "golden_temple",
-        "text": "Golden Temple Harmandir Sahib Sikh Gurdwara built 1604 Amritsar Punjab India holiest shrine Sikhism.",
-        "name": "Golden Temple",
-        "location": "Amritsar, India",
-        "timings": "Open 24 hours",
-        "entry_fee": "Free",
-        "best_time": "Early morning during prayers",
-        "fun_fact": "The temple serves free meals to over 100,000 people every day",
-        "latitude": "31.6200",
-        "longitude": "74.8765"
-    },
-    {
-        "id": "red_fort",
-        "text": "Red Fort historic fort built 1648 Mughal Emperor Shah Jahan Delhi India residence Mughal Emperors 200 years.",
-        "name": "Red Fort",
-        "location": "Delhi, India",
-        "timings": "9:30 AM - 4:30 PM (Closed Monday)",
-        "entry_fee": "₹35 Indians / ₹500 Foreigners",
-        "best_time": "Morning",
-        "fun_fact": "India's Prime Minister addresses the nation from here every Independence Day",
-        "latitude": "28.6562",
-        "longitude": "77.2410"
-    },
-    {
-        "id": "mysore_palace",
-        "text": "Mysore Palace historical palace built 1912 Mysore Karnataka India most visited monuments India.",
-        "name": "Mysore Palace",
-        "location": "Mysore, India",
-        "timings": "10:00 AM - 5:30 PM",
-        "entry_fee": "₹70 Indians / ₹200 Foreigners",
-        "best_time": "Sunday evenings when illuminated",
-        "fun_fact": "The palace is illuminated with 97,000 light bulbs every Sunday and on holidays",
-        "latitude": "12.3052",
-        "longitude": "76.6552"
-    },
-    {
-        "id": "charminar",
-        "text": "Charminar monument mosque built 1591 Muhammad Quli Qutb Shah Hyderabad Telangana India.",
-        "name": "Charminar",
-        "location": "Hyderabad, India",
-        "timings": "9:30 AM - 5:30 PM",
-        "entry_fee": "₹25 Indians / ₹300 Foreigners",
-        "best_time": "Early morning or evening",
-        "fun_fact": "It was built to commemorate the end of a deadly plague in the city",
-        "latitude": "17.3616",
-        "longitude": "78.4747"
-    },
-    {
-        "id": "lotus_temple",
-        "text": "Lotus Temple Bahai House Worship built 1986 New Delhi India shaped like lotus flower.",
-        "name": "Lotus Temple",
-        "location": "New Delhi, India",
-        "timings": "9:00 AM - 5:30 PM (Closed Monday)",
-        "entry_fee": "Free",
-        "best_time": "Morning or late afternoon",
-        "fun_fact": "It has won numerous architectural awards and is one of the most visited buildings in the world",
-        "latitude": "28.5535",
-        "longitude": "77.2588"
-    }
-]
+PS-06 closed-set landmark lookup is preferred when the vision agent
+returns a valid label_class.
 
-collection.add(
-    documents=[l["text"] for l in landmarks],
-    ids=[l["id"] for l in landmarks],
-    metadatas=[{
-        "name": l["name"],
-        "location": l["location"],
-        "timings": l["timings"],
-        "entry_fee": l["entry_fee"],
-        "best_time": l["best_time"],
-        "fun_fact": l["fun_fact"]
-    } for l in landmarks]
+When GPS coordinates are available, the lookup uses the nearest
+matching POI for that label_class.
+
+When GPS is unavailable, it falls back to the deterministic
+label_class lookup.
+"""
+
+from decimal import Decimal
+
+from agents.language_map import to_bcp47
+
+from db.ps06_connection import (
+    search_poi_by_name,
+    get_poi_by_label_class,
+    get_facts,
+    get_place_kb,
+    resolve_poi_by_label_and_location,
 )
 
-print("✅ Database loaded with", len(landmarks), "landmarks!")
+
+# ============================================================
+# FORMATTING HELPERS
+# ============================================================
+
+def _format_timings(poi: dict) -> str:
+    opens = poi.get("opens_at")
+    closes = poi.get("closes_at")
+
+    if not opens or not closes:
+        return "Not available"
+
+    return f"{opens} - {closes}"
 
 
-def search_landmark(landmark_name: str) -> dict:
+def _format_entry_fee(poi: dict) -> str:
+    """
+    PS-06 money is stored as an exact amount + currency pair.
+
+    We use Decimal instead of float so the original monetary
+    precision is preserved.
+    """
+    amount_text = poi.get("entry_cost")
+    currency = poi.get("currency")
+
+    if amount_text is None or currency is None:
+        return "Not available"
+
+    amount = Decimal(str(amount_text))
+
+    if amount == Decimal("0.00"):
+        return "Free"
+
+    return f"{amount} {currency}"
+
+
+def _format_best_time(poi: dict) -> str:
+    season = poi.get("best_season")
+
+    if not season:
+        return "Not available"
+
+    return season.replace("_", " ").title()
+
+
+def _pick_fun_fact(
+    poi_id: str,
+    language: str = "en-IN",
+) -> str:
+    """
+    Pick the highest-priority fact from the PS-06 knowledge base.
+    """
+    facts = get_facts(poi_id, language)
+
+    if not facts:
+        return "Not available"
+
+    return facts[0]["fact_text"]
+
+
+def _pick_description(
+    poi: dict,
+    language: str = "en-IN",
+) -> str:
+    """
+    Prefer PS-06 history/culture knowledge-base content.
+
+    Fall back to the POI's own description if no matching
+    knowledge-base content exists.
+    """
+    kb_rows = get_place_kb(
+        poi_id=poi["poi_id"],
+        language=language,
+    )
+
+    for section in ("history", "culture"):
+        for row in kb_rows:
+            if row["section"] == section:
+                return row["body"]
+
+    return poi.get("description", "")
+
+
+def _resolve_fact_language(poi_id, requested_bcp47):
+    """
+    get_facts() falls back to en-IN internally when the requested
+    language has no rows. Reports the TRUE language of whatever
+    was returned, instead of assuming non-empty == requested.
+    """
+    rows = get_facts(poi_id, requested_bcp47)
+
+    if not rows:
+        return "en-IN"
+
+    return rows[0]["language"]
+
+
+# ============================================================
+# FREE-TEXT LANDMARK SEARCH
+# ============================================================
+
+def search_landmark(
+    landmark_name: str,
+    language: str = "en-IN",
+) -> dict:
+    """
+    Search PS-06 by a free-text landmark name.
+
+    This is mainly used for open-world identification and fallback.
+    """
     try:
-        results = collection.query(
-            query_texts=[landmark_name],
-            n_results=1
-        )
+        poi = search_poi_by_name(landmark_name)
 
-        if results and results["metadatas"] and results["metadatas"][0]:
-            facts = results["metadatas"][0][0]
-            print("Found in database:", facts["name"])
+        if not poi:
             return {
-                "found": True,
-                "name": facts["name"],
-                "location": facts["location"],
-                "timings": facts["timings"],
-                "entry_fee": facts["entry_fee"],
-                "best_time": facts["best_time"],
-                "fun_fact": facts["fun_fact"]
+                "found": False,
+                "message": "Landmark not in PS-06 database",
             }
 
+        print(
+            f"[PS-06] Found in database: "
+            f"{poi['name']} ({poi['poi_id']})"
+        )
+
+        bcp47 = to_bcp47(language)
+
         return {
-            "found": False,
-            "message": "Landmark not in database yet"
+            "found": True,
+            "poi_id": poi["poi_id"],
+            "name": poi["name"],
+            "location": (
+                f"{poi['city_name']}, "
+                f"{poi['country_name']}"
+            ),
+            "city_id": poi["city_id"],
+            "timings": _format_timings(poi),
+            "entry_fee": _format_entry_fee(poi),
+            "entry_cost": poi["entry_cost"],
+            "currency": poi["currency"],
+            "best_time": _format_best_time(poi),
+            "fun_fact": _pick_fun_fact(
+                poi["poi_id"],
+                bcp47,
+            ),
+            "fact_language": _resolve_fact_language(
+                poi["poi_id"],
+                bcp47,
+            ),
+            "description": _pick_description(
+                poi,
+                bcp47,
+            ),
+            "poi_category": poi["poi_category"],
+            "typical_duration_minutes": (
+                poi["typical_duration_minutes"]
+            ),
+            "popularity_score": poi["popularity_score"],
+            "accessibility": poi["accessibility"],
+            "has_xr_scene": bool(
+                poi["has_xr_scene"]
+            ),
+            "lat": poi["lat"],
+            "lng": poi["lng"],
         }
 
     except Exception as e:
-        print("Database error:", str(e))
+        print("[PS-06] Database error:", str(e))
+
         return {
             "found": False,
-            "message": str(e)
+            "message": str(e),
         }
 
 
-def search_landmark_with_fallback(landmark_name: str) -> dict:
-    # First try ChromaDB
-    result = search_landmark(landmark_name)
+# ============================================================
+# CLOSED-SET LABEL SEARCH
+# ============================================================
 
-    if result["found"]:
-        result["source"] = "our_database"
+def search_landmark_by_label(
+    label_class: str,
+    language: str = "en-IN",
+    latitude: float | None = None,
+    longitude: float | None = None,
+) -> dict:
+    """
+    Search PS-06 using the closed-set label_class returned
+    by the vision agent.
+
+    If GPS is available:
+        Use resolve_poi_by_label_and_location() to choose the
+        nearest POI matching the label_class.
+
+    If GPS is unavailable:
+        Fall back to get_poi_by_label_class().
+
+    This is important because the same label_class can exist
+    in multiple cities.
+
+    Example:
+        watchtower_terrace
+
+    exists in multiple PS-06 POIs, so GPS helps choose the
+    correct one.
+    """
+
+    try:
+        poi = None
+
+        # ----------------------------------------------------
+        # GPS-AWARE LOOKUP
+        # ----------------------------------------------------
+        if latitude is not None and longitude is not None:
+            print(
+                f"[PS-06] GPS-aware lookup for "
+                f"'{label_class}'"
+            )
+
+            print(
+                f"[PS-06] User location: "
+                f"{latitude}, {longitude}"
+            )
+
+            poi = resolve_poi_by_label_and_location(
+                label_class,
+                latitude,
+                longitude,
+            )
+
+            if poi:
+                print(
+                    f"[PS-06] GPS match: "
+                    f"{poi['name']} "
+                    f"({poi['poi_id']})"
+                )
+
+                if poi.get("distance_km") is not None:
+                    print(
+                        f"[PS-06] Distance: "
+                        f"{poi['distance_km']} km"
+                    )
+
+        # ----------------------------------------------------
+        # FALLBACK WITHOUT GPS
+        # ----------------------------------------------------
+        if poi is None:
+            print(
+                f"[PS-06] No GPS match. "
+                f"Using label_class fallback: "
+                f"{label_class}"
+            )
+
+            poi = get_poi_by_label_class(
+                label_class
+            )
+
+        # ----------------------------------------------------
+        # NOTHING FOUND
+        # ----------------------------------------------------
+        if not poi:
+            return {
+                "found": False,
+                "message": (
+                    f"No POI found for label_class "
+                    f"'{label_class}'"
+                ),
+            }
+
+        # ----------------------------------------------------
+        # LANGUAGE
+        # ----------------------------------------------------
+        bcp47 = to_bcp47(language)
+
+        # ----------------------------------------------------
+        # RESULT
+        # ----------------------------------------------------
+        result = {
+            "found": True,
+            "poi_id": poi["poi_id"],
+            "name": poi["name"],
+            "location": (
+                f"{poi['city_name']}, "
+                f"{poi['country_name']}"
+            ),
+            "city_id": poi["city_id"],
+            "timings": _format_timings(poi),
+            "entry_fee": _format_entry_fee(poi),
+            "entry_cost": poi["entry_cost"],
+            "currency": poi["currency"],
+            "best_time": _format_best_time(poi),
+            "fun_fact": _pick_fun_fact(
+                poi["poi_id"],
+                bcp47,
+            ),
+            "fact_language": _resolve_fact_language(
+                poi["poi_id"],
+                bcp47,
+            ),
+            "description": _pick_description(
+                poi,
+                bcp47,
+            ),
+            "poi_category": poi["poi_category"],
+            "typical_duration_minutes": (
+                poi["typical_duration_minutes"]
+            ),
+            "popularity_score": poi["popularity_score"],
+            "accessibility": poi["accessibility"],
+            "has_xr_scene": bool(
+                poi["has_xr_scene"]
+            ),
+            "lat": poi["lat"],
+            "lng": poi["lng"],
+        }
+
+        # Include distance when GPS resolver supplied it.
+        if poi.get("distance_km") is not None:
+            result["distance_km"] = poi["distance_km"]
+
         return result
 
-    # If not found → try Wikipedia
-    print(f"Not in ChromaDB, trying Wikipedia for: {landmark_name}")
+    except Exception as e:
+        print(
+            "[PS-06] Database error:",
+            str(e),
+        )
+
+        return {
+            "found": False,
+            "message": str(e),
+        }
+
+
+# ============================================================
+# OPEN-WORLD + PS-06 FALLBACK
+# ============================================================
+
+def search_landmark_with_fallback(
+    landmark_name: str,
+    language: str = "en-IN",
+) -> dict:
+    """
+    First search PS-06 by landmark name.
+
+    If the landmark is not present in PS-06,
+    use Wikipedia as the open-world fallback.
+    """
+
+    result = search_landmark(
+        landmark_name,
+        language,
+    )
+
+    if result["found"]:
+        result["source"] = "ps06_database"
+        return result
+
+    print(
+        f"[PS-06] Not in database, "
+        f"trying Wikipedia for: {landmark_name}"
+    )
+
     from agents.wikipedia_agent import get_wikipedia_facts
-    wiki_result = get_wikipedia_facts(landmark_name)
+
+    wiki_result = get_wikipedia_facts(
+        landmark_name
+    )
 
     return wiki_result
