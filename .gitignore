@@ -1,4 +1,13 @@
+# Secrets (never commit)
 .env
-venv/
+*.env
+
+# Python
 __pycache__/
-.vscode/
+*.pyc
+venv/
+.venv/
+
+# Build output / OS
+*.apk
+Thumbs.db
